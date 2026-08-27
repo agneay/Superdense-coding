@@ -1,0 +1,6 @@
+# Extra dependencies needed only on the physical Raspberry Pi.
+# Install alongside the main requirements.txt:
+#   pip install -r requirements.txt -r hardware/requirements-pi.txt
+gpiozero>=2.0
+RPLCD>=1.3.1
+smbus2>=0.4.2

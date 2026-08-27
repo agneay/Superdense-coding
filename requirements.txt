@@ -1,0 +1,7 @@
+# Core dependencies for the software simulation (no Raspberry Pi needed).
+# For the physical hardware rig, also install hardware/requirements-pi.txt.
+qiskit>=1.0
+qiskit-aer>=0.14
+matplotlib>=3.7
+pylatexenc>=2.10
+pytest>=7.4
