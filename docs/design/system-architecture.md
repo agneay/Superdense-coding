@@ -1,7 +1,7 @@
 # System Architecture
 
-This document describes how the software simulation and the physical
-Raspberry Pi rig fit together as one system.
+This document describes how the software simulation, the physical
+Raspberry Pi rig, and the web application fit together as one system.
 
 ## 1. High-level overview
 
@@ -27,6 +27,19 @@ flowchart LR
         LEDC["LED: Match"]
         LEDG["4x Gate LEDs\n(I / X / Z / ZX)"]
     end
+
+    subgraph Browser["Browser"]
+        UI["webapp/static/app.js\n(message picker, LED/LCD panel)"]
+    end
+
+    subgraph Server["Flask server"]
+        APP["webapp/app.py"]
+        APP -->|"run_protocol(bit1, bit0)"| SIM
+        SIM -->|"ProtocolResult"| APP
+    end
+
+    UI -->|"/api/run, /api/run_all,\n/api/circuit.png"| APP
+    APP -->|"JSON + circuit PNG"| UI
 
     BTN1 --> MAIN
     BTN2 --> MAIN
@@ -62,6 +75,16 @@ reimplements the quantum logic, it only calls into it:
    This means the entire hardware layer can be developed, demoed, and
    graded on a laptop with **zero physical hardware**, then dropped onto
    an actual Raspberry Pi unchanged.
+5. **`webapp/app.py`** -- a browser/interactive consumer of layer 1,
+   parallel to layer 3 rather than built on top of it: a Flask app that
+   calls `run_protocol(...)`/`build_superdense_circuit(...)` directly
+   and returns JSON plus an on-demand circuit PNG (via
+   `simulation/visualization.py`, also used by `demo_cli.py
+   --save-images`). `webapp/static/app.js` re-creates the same
+   idle/sending/decoded LED and LCD states as layer 3, but in the DOM
+   instead of on GPIO/I2C hardware -- so the "watch it happen" part of
+   the demo also works with **zero physical hardware and zero
+   terminal**, from any browser.
 
 ## 3. Physical demo flow (user's point of view)
 
@@ -81,7 +104,28 @@ reimplements the quantum logic, it only calls into it:
      Alice's original message (`LED_MATCH`).
 4. Press **CYCLE** again at any time to pick a new message and repeat.
 
-## 4. Power design
+## 4. Web demo flow (user's point of view)
+
+The same flow, in a browser tab instead of at the physical rig:
+
+1. Open the page. Both LCD panels show the idle/select state; all LEDs
+   are off.
+2. Click a message button directly, or **Cycle** to step through
+   00 / 01 / 10 / 11, same as the physical CYCLE button.
+3. Click **Send**:
+   * `ENTANGLED` turns on and the Alice LCD panel shows "Sending...".
+   * `SENT` blinks for the same `SEND_ANIMATION_SECONDS` the physical
+     rig uses (`hardware/config.py`, fetched via `/api/config` so the
+     two never drift apart), then the frontend calls `/api/run`.
+   * The Flask route runs the real Qiskit simulation server-side and
+     returns the result as JSON.
+   * Exactly one gate LED (I / X / Z / ZX) lights up, the Bob LCD panel
+     shows the decoded bits and `MATCH`/`MISMATCH`, and the circuit
+     diagram for that exact message loads from `/api/circuit.png`.
+4. **Run all 4** calls `/api/run_all` and renders a results table
+   equivalent to `python -m simulation.demo_cli` with no `--bits`.
+
+## 5. Power design
 
 The rig is designed to run untethered from a USB power bank / battery
 pack rather than a wall adapter, so it can be carried to a demo table or
@@ -93,7 +137,7 @@ judging panel:
 * See `docs/design/bom.md` for the exact recommended part and current
   budget.
 
-## 5. Why a Raspberry Pi (and not real quantum hardware)
+## 6. Why a Raspberry Pi (and not real quantum hardware)
 
 There is no classical microcontroller or SBC that contains real qubits --
 the "quantum" part of this project is always a simulation. The Pi is

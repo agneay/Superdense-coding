@@ -1,0 +1,4 @@
+# Extra dependency needed only to run the web application.
+# Install alongside the main requirements.txt:
+#   pip install -r requirements.txt -r webapp/requirements-web.txt
+Flask>=3.0

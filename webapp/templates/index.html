@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Superdense Coding — Web Demo</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <header>
+    <h1>Superdense Coding</h1>
+    <p class="subtitle">Two classical bits, one transmitted qubit, one pre-shared Bell pair.</p>
+  </header>
+
+  <main>
+    <section class="panel controls">
+      <h2>Controls</h2>
+      <div class="message-picker">
+        <span>Message:</span>
+        <div class="message-buttons" id="messageButtons"></div>
+        <button id="cycleBtn" title="Same as the physical rig's CYCLE button">Cycle &#x27F3;</button>
+      </div>
+      <div class="actions">
+        <button id="sendBtn" class="primary" title="Same as the physical rig's SEND button">Send &#x25B6;</button>
+        <button id="runAllBtn" title="Same as running demo_cli.py with no --bits">Run all 4</button>
+      </div>
+    </section>
+
+    <section class="panel rig">
+      <h2>Physical rig view</h2>
+      <div class="lcds">
+        <div class="lcd" id="lcdAlice">
+          <div class="lcd-label">Alice</div>
+          <div class="lcd-line"></div>
+          <div class="lcd-line"></div>
+        </div>
+        <div class="lcd" id="lcdBob">
+          <div class="lcd-label">Bob</div>
+          <div class="lcd-line"></div>
+          <div class="lcd-line"></div>
+        </div>
+      </div>
+      <div class="leds">
+        <div class="led-group">
+          <div class="led" id="ledEntangled"><span>ENTANGLED</span></div>
+          <div class="led" id="ledSent"><span>SENT</span></div>
+          <div class="led" id="ledMatch"><span>MATCH</span></div>
+        </div>
+        <div class="led-group gates">
+          <div class="led" id="ledGateI"><span>I</span></div>
+          <div class="led" id="ledGateX"><span>X</span></div>
+          <div class="led" id="ledGateZ"><span>Z</span></div>
+          <div class="led" id="ledGateZX"><span>ZX</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel result" id="resultPanel" hidden>
+      <h2>Result</h2>
+      <table>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="panel circuit">
+      <h2>Circuit diagram</h2>
+      <img id="circuitImg" alt="Press Send to render the circuit for the selected message" />
+    </section>
+
+    <section class="panel all-results" id="allResultsPanel" hidden>
+      <h2>All four combinations</h2>
+      <div class="table-scroll">
+        <table id="allResultsTable">
+          <thead>
+            <tr><th>Message</th><th>Gate</th><th>Bell state</th><th>Bob decodes</th><th>Match</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Same protocol logic as <code>simulation/demo_cli.py</code> and
+      <code>hardware/pi_superdense_demo.py</code> -- see the project
+      README for the terminal and physical-rig versions of this demo.
+    </p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

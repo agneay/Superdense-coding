@@ -24,6 +24,7 @@ import argparse
 from pathlib import Path
 
 from simulation.superdense_coding import all_two_bit_combinations, run_protocol
+from simulation.visualization import circuit_to_png_bytes
 
 IMAGES_DIR = Path(__file__).resolve().parent.parent / "docs" / "images"
 
@@ -39,8 +40,7 @@ def print_result(r) -> None:
 def save_circuit_image(r) -> Path:
     IMAGES_DIR.mkdir(parents=True, exist_ok=True)
     out_path = IMAGES_DIR / f"circuit_{r.bit1}{r.bit0}.png"
-    fig = r.circuit.draw(output="mpl")
-    fig.savefig(out_path, bbox_inches="tight", dpi=150)
+    out_path.write_bytes(circuit_to_png_bytes(r.circuit))
     return out_path
 
 

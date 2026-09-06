@@ -26,6 +26,12 @@ jobs:
       - name: Run simulation unit tests
         run: pytest simulation/tests/ -v
 
+      - name: Install web app dependencies
+        run: pip install -r webapp/requirements-web.txt
+
+      - name: Run web app unit tests
+        run: pytest webapp/tests/ -v
+
       - name: Smoke-test the hardware rig in mock/keyboard mode
         run: |
           printf 'c\ns\nq\n' | python -m hardware.pi_superdense_demo

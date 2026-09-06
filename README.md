@@ -1,10 +1,10 @@
-# Superdense Coding — Simulation + Physical Demo Rig
+# Superdense Coding — Simulation + Physical Demo Rig + Web App
 
 > Capstone Project — Problem Statement 4: *Simulate a superdense coding
 > protocol where two classical bits are transmitted using a single qubit
 > with prior entanglement.*
 
-This project implements the superdense coding quantum protocol two ways:
+This project implements the superdense coding quantum protocol three ways:
 
 1. **Software simulation** (`simulation/`) — a Qiskit implementation of
    the full protocol (Bell pair -> encode -> "send" -> Bell-basis decode),
@@ -14,6 +14,11 @@ This project implements the superdense coding quantum protocol two ways:
    Raspberry Pi rig with two pushbuttons, two 16x2 LCDs, and status LEDs
    that lets you *physically* select a 2-bit message, press "send," and
    watch the protocol run and decode correctly in real time.
+3. **Web application** (`webapp/`) — a Flask app that puts the same
+   controls and visualization in a browser: pick a message (or run all
+   four, like the CLI), watch the same LED/LCD states the physical rig
+   shows, and see the live-rendered circuit diagram for whichever
+   message you sent.
 
 | Circuit for message `11` (gate: Z then X) |
 |:---:|
@@ -57,6 +62,28 @@ python -m hardware.pi_superdense_demo
 # q <Enter>  = quit
 ```
 
+## Web application
+
+The same protocol, controls, and visualization as the CLI and the
+physical rig, in a browser — no terminal or hardware required to watch
+it run:
+
+```bash
+pip install -r requirements.txt -r webapp/requirements-web.txt
+python -m webapp.app
+# then open http://127.0.0.1:5000/
+```
+
+* **Cycle** / message buttons and **Send** mirror the physical rig's
+  buttons; **Run all 4** mirrors `python -m simulation.demo_cli` with no
+  `--bits` argument.
+* The Alice/Bob LCD panels and the ENTANGLED / SENT / MATCH / gate LEDs
+  reproduce the same states `hardware/pi_superdense_demo.py` drives on
+  real hardware.
+* The circuit diagram is rendered on demand from the exact circuit that
+  was just run, via the shared `simulation/visualization.py` helper also
+  used by `--save-images`.
+
 ## Building the physical rig
 
 | | |
@@ -83,8 +110,9 @@ the entanglement/transmission stage and which gate was used.
 
 ```
 superdense-coding-project/
-├── simulation/                 # Qiskit protocol implementation (the "quantum" layer)
-│   ├── superdense_coding.py    #   encode / decode / run_protocol — fully unit tested
+├── simulation/                  # Qiskit protocol implementation (the "quantum" layer)
+│   ├── superdense_coding.py     #   encode / decode / run_protocol — fully unit tested
+│   ├── visualization.py         #   circuit -> PNG bytes, shared by demo_cli.py and webapp/
 │   ├── demo_cli.py              #   terminal demo + circuit-diagram generator
 │   └── tests/                   #   pytest suite (11 tests, all 4 messages verified)
 ├── hardware/                    # Raspberry Pi physical demo rig
@@ -93,6 +121,12 @@ superdense-coding-project/
 │   ├── config.py                #   all GPIO pin assignments in one place
 │   ├── requirements-pi.txt      #   Pi-only dependencies (gpiozero, RPLCD, smbus2)
 │   └── wiring/wiring_diagram.svg
+├── webapp/                      # Browser UI for the same protocol
+│   ├── app.py                   #   Flask routes -> simulation/superdense_coding.py
+│   ├── templates/index.html     #   single-page UI
+│   ├── static/{app.js,style.css}#   controls, LED/LCD visualization, circuit image
+│   ├── requirements-web.txt     #   web-only dependency (Flask)
+│   └── tests/                   #   pytest suite against the Flask test client
 ├── docs/
 │   ├── concept/protocol-theory.md      # the physics: Bell states, why it works
 │   ├── design/system-architecture.md   # software + hardware system design
@@ -115,8 +149,9 @@ single qubit to Bob, who now holds both qubits and performs a
 Bell-basis measurement (`CNOT` then `H`, then measure) to recover
 Alice's original two bits with zero measurement uncertainty. This
 project's `simulation/superdense_coding.py` implements exactly this
-circuit in Qiskit, and `hardware/pi_superdense_demo.py` wraps it in a
-physical, pressable, watchable interface.
+circuit in Qiskit, and `hardware/pi_superdense_demo.py` and
+`webapp/app.py` each wrap it in a pressable, watchable interface — one
+physical, one in the browser.
 
 ## References
 

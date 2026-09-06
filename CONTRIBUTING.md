@@ -20,12 +20,16 @@ pytest
 * `hardware/` -- the Raspberry Pi rig. Runs in a keyboard/console mock
   mode with no GPIO hardware attached, so you can develop and test
   hardware logic changes without a physical Pi.
+* `webapp/` -- the Flask web app. Same protocol logic as the other two,
+  reached through `simulation/superdense_coding.py`; no new protocol
+  code should be added here, only routes and presentation.
 * `docs/` -- concept write-up and design docs (architecture, wiring,
   BOM). Update these alongside any behavioral change.
 
 ## Before opening a PR
 
-1. `pytest` passes locally.
+1. `pytest` passes locally, including `webapp/tests/` (needs
+   `pip install -r webapp/requirements-web.txt` first).
 2. If you changed the protocol logic, regenerate the circuit diagrams:
    `python -m simulation.demo_cli --save-images`
 3. If you changed pin assignments, update both
